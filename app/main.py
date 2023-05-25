@@ -28,7 +28,7 @@ def extract_load_xml():
         return Response("Data uploaded successfully", status=200)
     except ET.ParseError:
         return Response("400 Bad request: Invalid XML data", status=400)
-    except:
+    except RuntimeError:
         db_conn.rollback()
         db_conn.close()
         return Response("400 Bad request: Document missing important data", status=400)
