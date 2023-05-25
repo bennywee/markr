@@ -16,7 +16,9 @@ def client(app):
 @pytest.fixture
 def db():
     db = sqlite3.connect(':memory:')
-    query = """
+    cur = db.cursor()
+    
+    ddl_query = """
     CREATE TABLE IF NOT EXISTS results (
     created_datetime TEXT NOT NULL,
     updated_datetime TEXT NOT NULL,
@@ -28,8 +30,19 @@ def db():
     PRIMARY KEY (student_number, test_id)
     )
     """
-    db.execute(query)
-    yield db
+
+    dml_query = """
+    INSERT INTO results VALUES
+    ('2023-02-25T01:07:00.000000', '2023-10-25T10:07:00.000000', '2017-12-04T12:12:10+11:00', '5585128', '9000', 10, 20),  
+    ('2023-01-25T01:07:00.000000', '2023-10-25T10:07:00.000000', '2017-12-04T12:12:10+11:00', '2299', '9000', 12, 20), 
+    ('2023-03-15T01:07:00.000000', '2023-10-25T10:07:00.000000', '2017-12-04T12:13:10+11:00', '2300', '9000', 1, 20), 
+    ('2023-02-29T01:07:00.000000', '2023-10-25T10:07:00.000000', '2017-12-04T12:14:10+11:00', '2304', '9000', 20, 20)
+    """
+
+    cur.execute(ddl_query)
+    cur.execute(dml_query)
+ 
+    return db
 
 @pytest.fixture
 def xml_data():

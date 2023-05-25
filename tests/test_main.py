@@ -11,3 +11,13 @@ def test_extract_load_xml(db, client, xml_data):
         response = client.post('/import/', data = xml_data)
         assert response.status_code == 200
 
+def test_summary_stats_error(db, client):
+    with patch('sqlite3.connect', MagicMock(return_value=db)):
+        bad_response = client.get('/results/1/aggregate')
+        assert bad_response.status_code == 400
+
+def test_summary_stats_error(db, client):
+    with patch('sqlite3.connect', MagicMock(return_value=db)):
+        good_response = client.get('/results/9000/aggregate')
+        assert good_response.status_code == 200
+
