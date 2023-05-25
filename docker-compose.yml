@@ -1,0 +1,6 @@
+services:
+  markr:
+    build:
+      dockerfile: Dockerfile
+    volumes:
+      - .:/markr
