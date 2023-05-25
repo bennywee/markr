@@ -2,7 +2,7 @@ from flask import Flask, request, Response
 import xml.etree.ElementTree as ET
 import sqlite3
 
-from data import parse_xml
+from data import parse_xml, stats
 
 app = Flask(__name__)
 
@@ -31,7 +31,24 @@ def extract_load_xml():
 
 @app.route("/results/<test_id>/aggregate", methods=['GET'])
 def summary_stats(test_id: str) -> dict:
-    ...
+    
+    with open("app/test_scores.sql", 'r') as sql_scores:
+        scores_query = sql_scores.read()
+
+    db_conn = sqlite3.connect("db/markr.db")
+    cur = db_conn.cursor()
+    percentages = cur.execute(scores_query, {"test_id": test_id}).fetchall()
+    percentages_list = list(itertools.chain(*percentages))
+
+    if len(percentages_list) > 0:
+        test_scores = stats(scores = percentages_list)
+        db_conn.close()
+        return test_scores
+    else:
+        db_conn.close()
+        return Response("400 Bad request: Test id does not exist", status = 400)
 
 if __name__ == "__main__":
    app.run(port=4567)
+
+   
