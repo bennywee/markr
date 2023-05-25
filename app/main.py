@@ -15,12 +15,19 @@ def extract_load_xml():
     with open("app/insert.sql", 'r') as sql_dml:
         insert_query = sql_dml.read()
         
-    raw_data = ET.fromstring(xml_data)
-    data = tuple(parse_xml(result) for result in raw_data.findall('mcq-test-result'))
-    cur.executemany(insert_query, data)
-    db_conn.commit()
-    db_conn.close()
-    return Response("Data uploaded successfully")
+    try:
+        raw_data = ET.fromstring(xml_data)
+        data = tuple(parse_xml(result) for result in raw_data.findall('mcq-test-result'))
+        cur.executemany(insert_query, data)
+        db_conn.commit()
+        db_conn.close()
+        return Response("Data uploaded successfully")
+    except ET.ParseError:
+        return Response("400 Bad request: Invalid XML data", status = 400)
+    except:
+        db_conn.rollback()
+        db_conn.close()
+        return Response("400 Bad request: Document missing important data", status = 400)
 
 @app.route("/results/<test_id>/aggregate", methods=['GET'])
 def summary_stats(test_id: str) -> dict:
