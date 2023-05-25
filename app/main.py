@@ -21,7 +21,7 @@ def extract_load_xml():
         cur.executemany(insert_query, data)
         db_conn.commit()
         db_conn.close()
-        return Response("Data uploaded successfully")
+        return Response("Data uploaded successfully", status = 200)
     except ET.ParseError:
         return Response("400 Bad request: Invalid XML data", status = 400)
     except:
