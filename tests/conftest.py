@@ -1,3 +1,6 @@
+import sys
+sys.path.append('/markr/app')
+
 import pytest
 from app.main import app as flask_app
 
