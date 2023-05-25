@@ -1,23 +1,25 @@
-import sys
-sys.path.append('/markr/app/')
+import sqlite3
 
 import pytest
-import sqlite3
+
 from app.main import app as flask_app
+
 
 @pytest.fixture
 def app():
     yield flask_app
 
+
 @pytest.fixture
 def client(app):
     return app.test_client()
 
+
 @pytest.fixture
 def db():
-    db = sqlite3.connect(':memory:')
+    db = sqlite3.connect(":memory:")
     cur = db.cursor()
-    
+
     ddl_query = """
     CREATE TABLE IF NOT EXISTS results (
     created_datetime TEXT NOT NULL,
@@ -41,8 +43,9 @@ def db():
 
     cur.execute(ddl_query)
     cur.execute(dml_query)
- 
+
     return db
+
 
 @pytest.fixture
 def xml_data():
@@ -60,6 +63,7 @@ def xml_data():
 
     return xml_string
 
+
 @pytest.fixture
 def missing_data():
     """
@@ -76,15 +80,16 @@ def missing_data():
         </mcq-test-result>
     </mcq-test-results>
     """
-    
+
     return xml_string
+
 
 @pytest.fixture
 def invalid_data():
     """
     Incorrect XML format
     """
-    
+
     xml_string = """
     <mcq-test-results>
             <first-name>Jane</first-name>
@@ -95,5 +100,5 @@ def invalid_data():
         </mcq-test-result>
     </mcq-test-results>
     """
-    
+
     return xml_string
