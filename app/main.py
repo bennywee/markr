@@ -1,3 +1,4 @@
+import itertools
 from flask import Flask, request, Response
 import xml.etree.ElementTree as ET
 import sqlite3
