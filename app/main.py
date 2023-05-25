@@ -12,21 +12,8 @@ def extract_load_xml():
     db_conn = sqlite3.connect("db/markr.db")
     cur = db_conn.cursor()
     
-    insert_query = """
-    INSERT INTO results VALUES (
-        :created_datetime,
-        :updated_datetime, 
-        :scanned_datetime,
-        :student_number,
-        :test_id,
-        :obtained_marks,
-        :available_marks)
-    ON CONFLICT(student_number, test_id)
-    DO UPDATE SET 
-        obtained_marks = MAX(obtained_marks, excluded.obtained_marks),
-        available_marks = MAX(available_marks, excluded.available_marks),
-        updated_datetime = excluded.updated_datetime
-    """
+    with open("app/insert.sql", 'r') as sql_dml:
+        insert_query = sql_dml.read()
         
     raw_data = ET.fromstring(xml_data)
     data = tuple(parse_xml(result) for result in raw_data.findall('mcq-test-result'))
