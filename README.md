@@ -29,7 +29,9 @@ XML
 If all goes well you should receive a confirmation message: `Data uploaded successfully`. You can also send through an `.xml` file, like the `sample_results.xml` all at once:
 
 ```
-
+curl -H "Content-Type: text/xml+markr"\
+      -X POST http://127.0.0.1:4567/import/\
+      -d @sample_results.xml
 ```
 
 To query aggregate data for a given test id, we need to query the endpoint `/results/:test-id/aggregate`. 
@@ -123,7 +125,7 @@ At the very least, this information should be hashed in this table. But this dat
 
 **3) Dealing with duplicate documents**
 
-Part of the product requirements is dealing with duplicate document scans (and to take the highest obtained and available scores). I chose to upsert (update and insert) the database table when this occurs. Line 9 onwards in `insert.sql` contains logic to handle an instance when a document is scanned twice (i.e when the primary key is duplicated). 
+Part of the product requirements is dealing with duplicate document scans (and to take the highest obtained and available scores). I chose to upsert (update and insert) the database table when this occurs. Line 9 onwards in `app/insert.sql` contains logic to handle an instance when a document is scanned twice (i.e when the primary key is duplicated). 
 
 ## Alternative solution design
 An alternative approach to the database design would be to follow an ELT pattern. This approach would deal with points 2) and 3) in a different way. At a high level:
@@ -137,6 +139,7 @@ An alternative approach to the database design would be to follow an ELT pattern
 Pursuing this approach for this POC would involve creating two separate tables, one with the data dump and a second one which contains the clean data without any duplicates. However, this would've been more complicated given the time constraints. 
 
 # Real time dashboards
+To support a real live dashboard, it may be faster to query a table which contains the aggregated summary statistics. So instead of calling the API to perform the data transformation, have the dashboarding solution perform a SQL query to the aggregate table directly. This POC could be extended (or redesigned) to follow the ELT process above where one of the key outputs is a table with aggregated summary statistics. This assumes that it is faster to query a table than it is for the api to do the aggregate data transformation. Further thinking and assumptions are required, such as how often the data aggregation table is produced (in batch, or instantly when there's a change to the raw data table, amongst lots of other considerations). 
 
 # Areas of improvement
 - SQL connection repeated at each endpoint in `app/main.py` (14-15 and 42-43). I did this while developing as it was more important to get the core functionality working. It would've be nicer to abstract away the connection in a separate class or module. Unfortunately, I ran out of time to do this!
