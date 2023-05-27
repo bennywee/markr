@@ -73,14 +73,14 @@ TOTAL                  128      8    94%
 ```
 
 # Solution design
-This microservice is built using Flask in Python with SQLite3 as a persisted storage solution. Below is a high level descirption of the repo structure:
+This microservice is built using Flask in Python with SQLite3 as a persisted storage solution. Below is a high level description of the repo structure:
 
 ```
 ├── Dockerfile
 ├── README.md
 ├── app                  <-- All application code and SQL queries
 │   ├── __init__.py
-│   ├── data.py             <-- Functions to help parse XML data and produce summary statistics
+│   ├── data.py             <-- Functions to parse XML data and produce summary statistics
 │   ├── main.py             <-- Main application
 │   ├── insert.sql          <-- Query writes parsed XML data into database
 │   └── test_scores.sql     <-- Requests test data for summary statistic calculations
@@ -113,15 +113,13 @@ The columns are defined and interpreted as:
 ## Assumptions and design choices
 **1) Uniqueness of the primary key**
 
-I've assumed that each pair of student ids and test ids are unique and would therefore make a suitable primary key (PK). However, this would not be the case if say, the same test were conducted statewide or countrywide and the student id is unique within schools. It would be very easy for student ids to overlap between schools if this was the case and cause problems for our database.
+I've assumed that each pair of student ids and test ids are unique and would therefore make a suitable primary key (PK). However, this would not be the case if the same test was conducted statewide or countrywide and the student id is unique only within schools. It would be very easy for student ids to overlap between schools if this was the case and cause problems for our database.
 
-If this is true, then it may be required to collect school id data and create a new PK with student, school and test ids. Using first or last name to form the PK would be insufficient as there may be an instance of two students with the same name and student id (and there are other reasons not to use name information as discussed next).
+If student IDs are duplicated in the documents, then it may be required to collect school id data and create a new PK with student, school and test ids. Using first or last name to form the PK would be insufficient as there may be an instance of two students with the same name and student id (and there are other reasons not to use name information as discussed next).
 
 **2) Ignoring PII (personally identifiable information) data**
 
-I deliberately avoided ingesting first and last name into columns of the table. In general, if the table was directly being used (or might be used) to populate production dashboards then PII data should not be so easily accessible at this layer.
-
-At the very least, this information should be hashed in this table. But this data was not required as part of the service requirements. I discuss an alternative design pattern for this service in the next section which deals with this in a different way. 
+I deliberately avoided ingesting first and last name into columns of the table. If the table was directly being used (or might be used) to populate production dashboards, then PII data should not be so easily accessible at this layer. If this information was required, then they would be hashed in this table. An alternative approach is discussed in the next section.
 
 **3) Dealing with duplicate documents**
 
@@ -132,14 +130,28 @@ An alternative approach to the database design would be to follow an ELT pattern
 
 1) Ingest (extract and load) all the XML data into a SQL/NoSQL database (or in a data lake or some other storage).
 
-2) Have separate logic remove the duplicate rows (and PII information) and write to a relational database - this would be where the aggregate endpoint would query
+2) Have separate logic remove the duplicate rows (and PII information) and write a new table to a relational database. The aggregate endpoint would query this new table.
 
 3) If name and last name columns are necessary, hash the values in the columns and restrict access to the raw data with PII information.
 
-Pursuing this approach for this POC would involve creating two separate tables, one with the data dump and a second one which contains the clean data without any duplicates. However, this would've been more complicated given the time constraints. 
+Designing the prototype this way would involve creating two separate tables, one with the data dump and a second one which contains the clean data without any duplicates. However, this would've been more complicated given the time constraints. 
+
+## Error handling
+The service will reject and return a `400 bad request` if:
+
+1) The XML data is incorrectly formatted
+
+2) If any of the data defined in the schema is missing from the XML data
+
+3) If the obtained or available scores are not integers
+
 
 # Real time dashboards
-To support a real live dashboard, it may be faster to query a table which contains the aggregated summary statistics. So instead of calling the API to perform the data transformation, have the dashboarding solution perform a SQL query to the aggregate table directly. This POC could be extended (or redesigned) to follow the ELT process above where one of the key outputs is a table with aggregated summary statistics. This assumes that it is faster to query a table than it is for the api to do the aggregate data transformation. Further thinking and assumptions are required, such as how often the data aggregation table is produced (in batch, or instantly when there's a change to the raw data table, amongst lots of other considerations). 
+To support a real live dashboard, it may be faster to query a table which contains the aggregated summary statistics. Instead of requesting the API to perform the data transformation, the dashboarding solution could perform a SQL query to the aggregate table directly. This POC could be extended (or redesigned) to follow the ELT solution described above where one of the key outputs is a table with aggregated summary statistics. This assumes that it is faster to query a table than it is for the api to do the aggregate data transformation. Further thinking and assumptions are required, such as how often the data aggregation table is updated (in batch, or instantly when there's a change to the raw data table) amongst lots of other considerations. 
 
-# Areas of improvement
-- SQL connection repeated at each endpoint in `app/main.py` (14-15 and 42-43). I did this while developing as it was more important to get the core functionality working. It would've be nicer to abstract away the connection in a separate class or module. Unfortunately, I ran out of time to do this!
+# Areas of improvement and other considerations
+- SQL connection repeated at each endpoint in `app/main.py` (14-15 and 42-43). I did this while developing as it was more important to get the core functionality working. It would've been nicer to abstract away the connection in a separate class or module. Unfortunately, I ran out of time to do this!
+
+- How many requests would this service be taking at once? Do we need to consider load balancing and resources required to process these requests?
+
+- Is there any authentication and security around who can access the service as well as the database?
