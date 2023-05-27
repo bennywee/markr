@@ -154,4 +154,4 @@ To support a real live dashboard, it may be faster to query a table which contai
 
 - How many requests would this service be taking at once? Do we need to consider load balancing and resources required to process these requests?
 
-- Is there any authentication and security around who can access the service as well as the database
+- Is there any authentication and security around who can access the service as well as the database?
