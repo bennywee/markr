@@ -107,7 +107,7 @@ def invalid_data():
 @pytest.fixture
 def scores_as_strings():
     """
-    Incorrect XML format
+    Scores as strings instead of integers
     """
 
     xml_string = """

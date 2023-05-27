@@ -63,13 +63,13 @@ Name                 Stmts   Miss  Cover
 ----------------------------------------
 app/__init__.py          0      0   100%
 app/data.py             14      0   100%
-app/main.py             42      8    81%
+app/main.py             46     10    78%
 tests/__init__.py        2      0   100%
-tests/conftest.py       30      0   100%
+tests/conftest.py       34      4    88%
 tests/test_data.py      22      0   100%
-tests/test_main.py      18      0   100%
+tests/test_main.py      21      9    57%
 ----------------------------------------
-TOTAL                  128      8    94%
+TOTAL                  139     23    83%
 ```
 
 # Solution design
@@ -154,4 +154,4 @@ To support a real live dashboard, it may be faster to query a table which contai
 
 - How many requests would this service be taking at once? Do we need to consider load balancing and resources required to process these requests?
 
-- Is there any authentication and security around who can access the service as well as the database?
+- Is there any authentication and security around who can access the service as well as the database
