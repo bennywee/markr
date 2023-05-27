@@ -1,0 +1,14 @@
+version: "0.1"
+services:
+  markr:
+    build:
+      dockerfile: Dockerfile
+      target: app
+    ports:
+      - "4567:5000"
+  dev:
+    build:
+      dockerfile: Dockerfile
+      target: dev
+    volumes:
+      - .:/markr
