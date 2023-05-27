@@ -1,11 +1,13 @@
 from unittest.mock import MagicMock, patch
 
 
-def test_extract_load_xml_error(client, missing_data, invalid_data):
+def test_extract_load_xml_error(client, missing_data, invalid_data, scores_as_strings):
     mising_response = client.post("/import/", data=missing_data)
     invalid_response = client.post("/import/", data=invalid_data)
+    string_response = client.post("/import/", data=scores_as_strings)
     assert mising_response.status_code == 400
     assert invalid_response.status_code == 400
+    assert string_response.status_code == 400
 
 
 def test_extract_load_xml(db, client, xml_data):

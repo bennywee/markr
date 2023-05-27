@@ -32,6 +32,13 @@ def extract_load_xml():
         db_conn.rollback()
         db_conn.close()
         return Response("400 Bad request: Document missing important data", status=400)
+    except sqlite3.OperationalError:
+        db_conn.rollback()
+        db_conn.close()
+        return Response(
+            "400 Bad request: Data is an incorrect type (scores must be integers)",
+            status=400,
+        )
 
 
 @app.route("/results/<test_id>/aggregate", methods=["GET"])
