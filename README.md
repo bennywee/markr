@@ -67,9 +67,9 @@ app/main.py             46      5    89%
 tests/__init__.py        2      0   100%
 tests/conftest.py       34      0   100%
 tests/test_data.py      22      0   100%
-tests/test_main.py      25      9    64%
+tests/test_main.py      25      0   100%
 ----------------------------------------
-TOTAL                  143     14    90%
+TOTAL                  143      5    97%
 ```
 
 # Solution design

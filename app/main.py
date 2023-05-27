@@ -32,7 +32,7 @@ def extract_load_xml():
         db_conn.rollback()
         db_conn.close()
         return Response("400 Bad request: Document missing important data", status=400)
-    except sqlite3.OperationalError:
+    except (sqlite3.IntegrityError):
         db_conn.rollback()
         db_conn.close()
         return Response(
