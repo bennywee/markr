@@ -63,13 +63,13 @@ Name                 Stmts   Miss  Cover
 ----------------------------------------
 app/__init__.py          0      0   100%
 app/data.py             14      0   100%
-app/main.py             46     10    78%
+app/main.py             46      5    89%
 tests/__init__.py        2      0   100%
-tests/conftest.py       34      4    88%
+tests/conftest.py       34      0   100%
 tests/test_data.py      22      0   100%
-tests/test_main.py      21      9    57%
+tests/test_main.py      25      9    64%
 ----------------------------------------
-TOTAL                  139     23    83%
+TOTAL                  143     14    90%
 ```
 
 # Solution design
